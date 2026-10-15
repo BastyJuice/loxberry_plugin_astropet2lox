@@ -1,0 +1,33 @@
+<h2>AstroPet2Lox einrichten</h2>
+<ol>
+  <li>Unter <strong>Einstellungen</strong> die E-Mail und das Passwort deines AstroPet-Kontos eingeben und <strong>Speichern und verbinden</strong> wählen. Bereits gespeicherte Zugangsdaten bleiben erhalten, wenn du die Felder leer lässt.</li>
+  <li>Falls AstroPet eine Bestätigung verlangt, <strong>E-Mail-Code anfordern</strong> wählen und den sechsstelligen Code bestätigen. Die E-Mail wird erst durch diesen Klick angefordert.</li>
+  <li>Bei mehreren Geräten die gewünschte Katzentoilette auswählen. Das Plugin veröffentlicht die Werte dieses Geräts.</li>
+  <li>Im LoxBerry-MQTT-Gateway einen Miniserver einrichten und die Weiterleitung aktivieren. Das Plugin registriert das Abo <code>astropet2lox/#</code> und verwendet den vorhandenen MQTT-Broker.</li>
+  <li>In Loxone Config virtuelle Eingänge mit den Namen aus <strong>MQTT-Variablen</strong> anlegen, etwa <code>astropet2lox_weight_kg</code>. Das Plugin legt keine virtuellen Eingänge in Loxone Config an.</li>
+</ol>
+<p>Der Hintergrunddienst fragt das Gerät automatisch ab. Standard: alle 60 Sekunden. Diese Browserseite muss dafür nicht geöffnet bleiben. Zum Pausieren die automatische Abfrage abwählen und <strong>Nur Einstellungen speichern</strong> wählen. <strong>Geräteverbindung trennen</strong> entfernt die Geräteverbindung; <strong>Browsersitzung löschen</strong> entfernt nur die kurzlebige Anmeldebestätigung im Browser.</p>
+
+<h3>Werte richtig verwenden</h3>
+<p>MQTT-Werte werden gespeichert (retained) und können nach einer Unterbrechung noch vorhanden sein. Verwende Gerätewerte nur bei <code>astropet2lox_availability=1</code> und <code>astropet2lox_data_valid=1</code>. <code>availability</code> beschreibt den MQTT-Hintergrunddienst; <code>data_valid</code> beschreibt die erfolgreiche, ausreichend neue Geräteabfrage bei online erreichbarem Gerät.</p>
+<p><code>astropet2lox_heartbeat_counter</code> ändert sich normalerweise alle zehn Sekunden. Überwache ihn in Loxone mit einem Watchdog, beispielsweise mit 45 Sekunden Zeitüberschreitung. Er bleibt auch auf Eingängen mit begrenzter Zahlengenauigkeit eindeutig; <code>heartbeat</code> enthält zusätzlich die Unix-Zeit.</p>
+<ul>
+  <li><strong>Gewicht:</strong> <code>weight_kg</code> ist das zuletzt gemeldete Gewicht. <code>weight_available</code>, <code>weight_reported_at</code> und <code>weight_age_seconds</code> helfen bei der Verwendung. Eine neue Geräteabfrage bedeutet kein neues Wiegen.</li>
+  <li><strong>Besuche:</strong> <code>visits_today</code> nur zusätzlich bei <code>visits_today_valid=1</code> verwenden. Die Tagesgrenze folgt der Zeitzone des Geräts. <code>last_visit_duration_seconds</code> ist die zuletzt gemeldete Besuchsdauer.</li>
+  <li><strong>Streuwert:</strong> <code>litter_level_percent</code> nur zusätzlich bei <code>litter_level_valid=1</code> verwenden. Gültigkeit: heutiger Gerätetag und höchstens 180 Sekunden seit der Meldung. Das Geräteschema erlaubt Werte bis 250; es wird keine zusätzliche Begrenzung auf 100 vorgenommen.</li>
+  <li><strong>Zustand und Fehler:</strong> Unbekannte Zustandsnummern und Bits werden als Zahlen ausgegeben. Ihre Bedeutung wird nicht geraten. Ein Füllstand des Abfallbehälters lässt sich daraus nicht verlässlich ableiten.</li>
+  <li><strong>Rohwerte:</strong> <code>dp_</code>-Themen folgen dem tatsächlichen Geräteschema. Fehlende Messwerte bleiben fehlend; ein Gedankenstrich in der Tabelle ist kein Messwert 0. Verfügbarkeit und Meldezeit stehen bei den beschriebenen Variablen.</li>
+</ul>
+<p>Die vollständige Liste mit MQTT-Thema, Loxone-Name, Einheit und Gültigkeit steht im Tab <strong>MQTT-Variablen</strong>.</p>
+
+<h3>Wenn keine Werte ankommen</h3>
+<p>Den Verbindungsstatus, die Geräteauswahl, das MQTT-Gateway und die Miniserver-Konfiguration prüfen. Unter <strong>Protokolle</strong> stehen Meldungen des Hintergrunddiensts. Zugangsdaten werden auf dem LoxBerry gespeichert und nach dem Speichern nicht wieder in das Formular eingesetzt. Erforderlich sind LoxBerry 4, 64 Bit, PHP ab 7.4 sowie cURL, OpenSSL und zlib. Die Oberfläche nutzt direkt das vorhandene PHP des LoxBerry. Das Plugin installiert keine zusätzliche PHP-Version.</p>
+<p>Die Anbindung liest Daten. Sie beruht auf der AstroPet-App 1.0.22 und einem privaten, inoffiziellen Dienst. Änderungen an diesem Dienst können eine Anpassung des Plugins erfordern.</p>
+
+<hr>
+<h2>Setup in English</h2>
+<p>Enter your AstroPet credentials under <strong>Settings</strong> and choose <strong>Save and connect</strong>. Blank fields preserve saved credentials. If required, request the email code explicitly and confirm it. Select your device when the account contains multiple devices.</p>
+<p>Enable Miniserver forwarding in the LoxBerry MQTT gateway. The plugin registers <code>astropet2lox/#</code> on the existing broker. Create virtual inputs in Loxone Config using the names listed under <strong>MQTT variables</strong>, such as <code>astropet2lox_weight_kg</code>.</p>
+<p>The background worker polls automatically, normally every 60 seconds. Only use device values when <code>availability=1</code> and <code>data_valid=1</code>. Also check each value's availability, report time and validity. Weight and duration are the last reported measurements. Daily visits require <code>visits_today_valid=1</code>; litter readings require <code>litter_level_valid=1</code>. Retained MQTT values may remain after disconnection. Unknown fault bits and state numbers have no inferred meaning.</p>
+<p>Monitor <code>astropet2lox_heartbeat_counter</code> using a Loxone watchdog, for example with a 45-second timeout. The counter normally changes every ten seconds; <code>heartbeat</code> additionally contains Unix time.</p>
+<p>Requires LoxBerry 4, 64-bit PHP 7.4 or newer, cURL, OpenSSL and zlib. The interface uses the PHP runtime already provided by LoxBerry. The plugin installs no additional PHP version. This unofficial, read-only integration is based on AstroPet app 1.0.22.</p>

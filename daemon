@@ -1,0 +1,6 @@
+#!/bin/bash
+set -eu
+# The installer replaces this token with the actual folder, including its suffix.
+task_folder='REPLACELBPPLUGINDIR'
+[[ "$task_folder" =~ ^astropet2lox[0-9]*$ ]] || exit 2
+exec systemctl --no-block start "astropet2lox-$task_folder.service"

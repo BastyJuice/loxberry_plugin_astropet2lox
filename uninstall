@@ -1,0 +1,10 @@
+#!/bin/bash
+set -eu
+umask 077
+# The installer invokes this before deleting the plugin bin directory.
+task_home=${LBHOMEDIR:-${5:-}}
+task_folder=${3:-}
+[[ "$task_folder" =~ ^astropet2lox[0-9]*$ ]] || exit 2
+. "${LBPBIN:-$task_home/bin/plugins}/$task_folder/lifecycle-common.sh"
+a2l_init "$@"
+a2l_uninstall_service
